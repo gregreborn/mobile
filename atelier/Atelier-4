@@ -4,22 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.atelier_4.ui.theme.Atelier4Theme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +33,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var billText by remember { mutableStateOf(TextFieldValue()) }
-                    var checkedState = remember { mutableStateOf(true) }
-                    var sliderValue = remember { mutableStateOf(5f) }
-                    var totalBill = remember { mutableStateOf(0f) }
+                    val checkedState = remember { mutableStateOf(true) }
+                    val sliderValueTip = remember { mutableStateOf(5f) }
+                    val totalBill = remember { mutableStateOf(0f) }
+                    val sliderValuePeople = remember { mutableStateOf(1) }
 
                     val taxPercentage = 0.15f //15% tax
                     Column(modifier = Modifier.padding(all = 16.dp)) {
@@ -50,7 +45,7 @@ class MainActivity : ComponentActivity() {
                             value = billText,
                             onValueChange = { newText ->
                                 billText = newText
-                                updateTotalBill(billText, sliderValue.value, checkedState.value, totalBill)
+                                updateTotalBill(billText, sliderValueTip.value, checkedState.value, totalBill,sliderValuePeople.value)
 
                             },
                             label = { Text("Enter text") }
@@ -60,39 +55,50 @@ class MainActivity : ComponentActivity() {
                         Switch(
                             checked = checkedState.value,
                             onCheckedChange = { checkedState.value = it
-                                updateTotalBill(billText, sliderValue.value, checkedState.value,totalBill)
+                                updateTotalBill(billText, sliderValueTip.value, checkedState.value,totalBill,sliderValuePeople.value)
                             }
                         )
                         Slider(
-                            value = sliderValue.value,
-                            onValueChange = { sliderValue.value = it
-                                updateTotalBill(billText, sliderValue.value, checkedState.value,totalBill)
+                            value = sliderValueTip.value,
+                            onValueChange = { sliderValueTip.value = it
+                                updateTotalBill(billText, sliderValueTip.value, checkedState.value,totalBill,sliderValuePeople.value)
                             },
                             valueRange = 5f..20f)
-                        Text(text = "Tip: ${sliderValue.value}")
+                        Text(text = "Tip: ${sliderValueTip.value}")
                         TextField(
                             value = totalBill.value.toString(),
                             onValueChange = {},
                             label = { Text(text = "Total Bill")},
                             readOnly = true)
+                        Slider(
+                            value = sliderValuePeople.value.toFloat(),
+                            onValueChange = {sliderValuePeople.value = it.toInt()
+                                updateTotalBill(billText, sliderValueTip.value, checkedState.value,totalBill,sliderValuePeople.value)
+                             },
+                            valueRange = 1f..5f)
+                        Text(text = "Personne: ${sliderValuePeople.value}")
                     }
                 }
             }
         }
     }
-    private fun updateTotalBill(billText: TextFieldValue, sliderValue: Float, checkedState: Boolean, totalBill: MutableState<Float>) {
+    private fun updateTotalBill(billText: TextFieldValue, sliderValue: Float, checkedState: Boolean, totalBill: MutableState<Float>, sliderValue2: Int) {
         val bill = billText.text.toFloatOrNull() ?: 0f
         val tipPercentage = sliderValue / 100
-        val taxPercentage = if (checkedState) 0.15f else 0f 
+        val billPerPeaple = sliderValue2
+        val taxPercentage = if (checkedState) 0.15f else 0f
 
         var total = bill + (bill * tipPercentage)
 
         if (checkedState) {
-            
-            total += bill * taxPercentage
+
+
+                total += (total * taxPercentage)
+                total = total / billPerPeaple
+
         }
 
-        totalBill.value = total 
+        totalBill.value = total
     }
 
 

@@ -17,6 +17,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tp.userInterface.components.BettingComponent
 import com.example.tp.userInterface.components.CardComponent
 import androidx.compose.material3.Card
+import com.example.tp.userInterface.components.DisplayHand
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 
 @Composable
 fun GameplayScreen(navController: NavController, viewModel: GameViewModel) {
@@ -30,14 +35,27 @@ fun GameplayScreen(navController: NavController, viewModel: GameViewModel) {
     // Observe the chips and the option to split
     val playerChips by viewModel.playerChips.observeAsState(initial = 100)
     val splitOffered by viewModel.splitOffered.observeAsState(initial = false)
+    val betPlaced by viewModel.betPlaced.observeAsState(initial = false)
+    val gameOver by viewModel.gameOver.observeAsState(initial = false)
+    val nextRoundEnabled by viewModel.nextRoundEnabled.observeAsState(initial = false)
+    val playerSplitHands by viewModel.playerSplitHands.observeAsState(initial = emptyList())
+    val activeHandIndex by viewModel.activeHandIndex.observeAsState(initial = -1)
+    val splitPerformed by viewModel.splitPerformed.observeAsState(initial = false)
+
 
     // Get deckId from deckData (can be null if not yet fetched)
     val deckId = deckData?.deck_id
 
+
+
+
     // This will hold the entire screen
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())  // <-- Add this for scrollable behavior
+                .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -58,55 +76,69 @@ fun GameplayScreen(navController: NavController, viewModel: GameViewModel) {
             }
 
 
-            // Player's cards display
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Your Cards:")
+            Spacer(modifier = Modifier.height(16.dp))
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy((-80).dp)
-                ) {
-                    items(playerCards) { card ->
-                        CardComponent(card = card)
-                    }
-                }
-                // Display Player's chips
-                Text(text = "Chips: $playerChips")
+            // Main player's cards display
+            DisplayHand(cards = playerCards, title = "Your Cards:", isHandActive = activeHandIndex == -1)
+
+            // Split hands display
+            playerSplitHands.forEachIndexed { index, splitHand ->
+                Spacer(modifier = Modifier.height(16.dp))
+                DisplayHand(cards = splitHand, title = "Split Hand ${index + 1}:", isHandActive = activeHandIndex == index)
             }
+
+            // Display Player's chips
+            Text(text = "Chips: $playerChips")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Spacer(modifier = Modifier.height(16.dp))
+
 
             // Action buttons
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = {
-                    deckId?.let {
-                        viewModel.drawCardForPlayer(it)
-                    }
-                }) {
-                    Text("Hit")
-                }
-
-                Button(onClick = {
-                    viewModel.stand()
-                }) {
-                    Text("Stand")
-                }
-
-                if (splitOffered) {
+            if (betPlaced) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Button(onClick = {
-                        viewModel.handleSplit()
+                        deckId?.let {
+                            viewModel.drawCardForPlayer(it)
+                        }
                     }) {
-                        Text("Split")
+                        Text("Hit")
+                    }
+
+                    Button(onClick = {
+                        viewModel.stand()
+                    }) {
+                        Text("Stand")
+                    }
+
+                    if (splitOffered && !splitPerformed) {
+                        Button(onClick = {
+                            viewModel.handleSplit()
+                        }) {
+                            Text("Split")
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
 
             // Betting Component
-            BettingComponent(chips = playerChips) { bet ->
-                viewModel.placeBetAsync(bet)
+            if (!betPlaced && gameResult.isEmpty()) {
+                BettingComponent(chips = playerChips) { bet ->
+                    viewModel.placeBetAsync(bet)
+                }
             }
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
 
             // Game status and result
             Column(
@@ -114,10 +146,27 @@ fun GameplayScreen(navController: NavController, viewModel: GameViewModel) {
             ) {
                 if (gameResult.isNotEmpty()) {
                     Text(text = gameResult)
+
+                    // Display Game Over text if game is over
+                    if (gameOver) {
+                        Text(text = "Game Over!")
+                    }
+
+                    // Display a button to start the next round if the option is enabled
+                    if (nextRoundEnabled) {
+                        Button(onClick = {
+                            viewModel.startNextRound()
+                        }) {
+                            Text("Start Next Round")
+                        }
+                    }
+
                 } else {
                     Text(text = "Your Turn")
                 }
             }
         }
     }
+
+
 }

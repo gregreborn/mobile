@@ -15,6 +15,7 @@ import com.example.tp.utils.GameLogic
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 
 class GameViewModel(private val repository: GameRepository) : ViewModel() {
@@ -41,11 +42,25 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
     private val _splitOffered: MutableLiveData<Boolean> = MutableLiveData(false)
     val splitOffered: LiveData<Boolean> = _splitOffered
 
+    private val _betPlaced = MutableLiveData<Boolean>(false)
+    val betPlaced: LiveData<Boolean> = _betPlaced
+
+
     private val _playerSplitHands: MutableLiveData<List<List<Card>>> = MutableLiveData(emptyList())
     val playerSplitHands: LiveData<List<List<Card>>> = _playerSplitHands
 
     private val _activeHandIndex: MutableLiveData<Int> = MutableLiveData(-1)
     val activeHandIndex: LiveData<Int> = _activeHandIndex
+
+    private val _gameOver: MutableLiveData<Boolean> = MutableLiveData(false)
+    val gameOver: LiveData<Boolean> = _gameOver
+
+    private val _nextRoundEnabled: MutableLiveData<Boolean> = MutableLiveData(false)
+    val nextRoundEnabled: LiveData<Boolean> = _nextRoundEnabled
+
+    private val _splitPerformed: MutableLiveData<Boolean> = MutableLiveData(false)
+    val splitPerformed: LiveData<Boolean> = _splitPerformed
+
 
     //------------------------------------------------------------------------------------------//
 
@@ -58,16 +73,24 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
     }
 
     fun handleSplit() {
-        Log.d("GameViewModel", "Handling split...")
         val currentCards = _playerCards.value ?: emptyList()
         if (currentCards.size == 2 && currentCards[0].value == currentCards[1].value) {
+            // Deduct additional bet for the second split hand
+            _playerChips.value = (_playerChips.value ?: 0) - _currentBet.value!!
+
             val splitHands = listOf(listOf(currentCards[0]), listOf(currentCards[1]))
             _playerSplitHands.value = splitHands
             _playerCards.value = emptyList() // Clear original player cards.
             _activeHandIndex.value = 0 // Set first split hand as active.
-            Log.d("GameViewModel", "After Split: playerSplitHands: ${_playerSplitHands.value}, playerCards: ${_playerCards.value}")
+            _splitPerformed.value = true
+
+            // Now draw a card for each split hand
+            drawCardForActiveSplitHand(_deckData.value?.deck_id ?: return)
         }
     }
+
+
+
 
 
     fun standForSplitHand() {
@@ -98,7 +121,11 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
 
     fun initializeGame() {
         fetchNewDeck()
-        // TODO: Reset any other game state if needed
+    }
+
+    fun startNextRound() {
+        _nextRoundEnabled.value = false
+        resetGameState()
     }
 
     private fun updateChipsAfterRound(result: String) {
@@ -108,6 +135,12 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
             "It's a Tie!" -> _playerChips.value = (_playerChips.value ?: 0) + _currentBet.value!!
         }
         _currentBet.value = 0
+
+        if (_playerChips.value ?: 0 <= 0) {
+            _gameOver.value = true
+        } else {
+            _nextRoundEnabled.value = true
+        }
     }
 
     suspend fun drawCard(deckId: String): Card? {
@@ -127,26 +160,45 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
         return null
     }
 
+    fun drawCardForActiveSplitHand(deckId: String) {
+        viewModelScope.launch {
+            val card = drawCard(deckId) ?: return@launch
+
+            val updatedHands = _playerSplitHands.value?.toMutableList() ?: mutableListOf()
+            val currentHand = updatedHands[_activeHandIndex.value!!].toMutableList()
+            currentHand.add(card)
+            updatedHands[_activeHandIndex.value!!] = currentHand
+            _playerSplitHands.value = updatedHands
+
+            // If the current active hand is the first split hand, set the second split hand as active and draw a card for it.
+            if (_activeHandIndex.value == 0) {
+                _activeHandIndex.value = 1
+                drawCardForActiveSplitHand(deckId)
+            } else {
+                _activeHandIndex.value = 0 // Reset active hand index after drawing for both split hands
+            }
+        }
+    }
+
+
     fun drawCardForPlayer(deckId: String) {
         Log.d("GameViewModel", "Drawing card for player...")
         viewModelScope.launch {
             val card = drawCard(deckId) ?: return@launch
 
+            val updatedHands = _playerSplitHands.value?.toMutableList() ?: mutableListOf()
             if (_activeHandIndex.value != null && _activeHandIndex.value != -1) { // Active split hand.
-                val updatedHands = _playerSplitHands.value?.toMutableList() ?: mutableListOf()
                 if (_activeHandIndex.value!! < updatedHands.size) {
                     val currentHand = updatedHands[_activeHandIndex.value!!].toMutableList()
                     currentHand.add(card)
                     updatedHands[_activeHandIndex.value!!] = currentHand
                     _playerSplitHands.value = updatedHands
-                } else {
-                    // Handle error case: unexpected active hand index.
                 }
             } else { // No active split hand.
                 val updatedCards = _playerCards.value?.toMutableList() ?: mutableListOf()
                 updatedCards.add(card)
                 _playerCards.value = updatedCards
-                checkForSplitOption() // Check for split option only for the first two cards.
+                checkForSplitOption()
             }
 
             val cardsToCheck = if (_activeHandIndex.value != null && _activeHandIndex.value != -1 && _playerSplitHands.value?.isNotEmpty() == true) {
@@ -155,9 +207,20 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
                 _playerCards.value
             } ?: emptyList()
             if (GameLogic.isBlackjack(cardsToCheck)) {
-                _gameResult.value = "Player Wins with Blackjack!"
+                if (_activeHandIndex.value != null && _activeHandIndex.value != -1) {
+                    // Handle blackjack for split hand
+                    _playerChips.value = (_playerChips.value ?: 0) + (1.5 * _currentBet.value!!).roundToInt()
+                    standForSplitHand()
+                } else {
+                    _gameResult.value = "Player Wins with Blackjack!"
+                }
             } else if (GameLogic.isBust(cardsToCheck)) {
-                _gameResult.value = "Player Busted! Dealer Wins!"
+                if (_activeHandIndex.value != null && _activeHandIndex.value != -1) {
+                    // Handle bust for split hand
+                    standForSplitHand()
+                } else {
+                    _gameResult.value = "Player Busted! Dealer Wins!"
+                }
             }
         }
     }
@@ -165,6 +228,7 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
     fun placeBetAsync(betAmount: Int) {
         viewModelScope.launch {
             placeBet(betAmount)
+            _betPlaced.value = true
         }
     }
 
@@ -210,13 +274,18 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
         _currentBet.value = 0
         _splitOffered.value = false
         _gameResult.value = ""
+        _activeHandIndex.value = -1
+        _playerSplitHands.value = emptyList()
+
         // You might also want to fetch a new deck here or as part of the game's flow
         fetchNewDeck()
     }
 
 
+
     fun stand() {
         Log.d("GameViewModel", "Player stands.")
+
         // If the player has opted for split hands and is yet to act on all of them
         if (_activeHandIndex.value ?: -1 >= 0) {
             standForSplitHand()
@@ -225,8 +294,13 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
 
         // If no active split hand or all split hands acted upon, proceed with dealer's turn
         // First, reveal the dealer's hidden card
-        drawInitialCardForDealer(_deckData.value?.deck_id ?: return)
+        val currentDeckId = _deckData.value?.deck_id ?: return
+        drawInitialCardForDealer(currentDeckId)
+
+        // Then, continue the dealer's turn
+        continueDealerTurn(currentDeckId)
     }
+
 
 
 
@@ -270,33 +344,68 @@ class GameViewModel(private val repository: GameRepository) : ViewModel() {
 
     private fun decideWinner() {
         Log.d("GameViewModel", "Deciding winner...")
-        val playerSum = GameLogic.calculateSum(_playerCards.value ?: listOf())
-        val dealerSum = GameLogic.calculateSum(_dealerCards.value ?: listOf())
 
-        when {
-            GameLogic.isBust(_playerCards.value ?: listOf()) -> {
-                // Player busted, dealer wins
-                _gameResult.value = "Dealer Wins!"
+        if (_activeHandIndex.value != null && _activeHandIndex.value != -1) {
+            // Deciding for split hands
+            val splitHand = _playerSplitHands.value?.get(_activeHandIndex.value!!) ?: return
+            val playerSum = GameLogic.calculateSum(splitHand)
+            val dealerSum = GameLogic.calculateSum(_dealerCards.value ?: listOf())
+
+            when {
+                GameLogic.isBust(splitHand) -> {
+                    _gameResult.value = "Dealer Wins!"
+                }
+                GameLogic.isBust(_dealerCards.value ?: listOf()) -> {
+                    _gameResult.value = "Player Wins!"
+                }
+                playerSum > dealerSum -> {
+                    _gameResult.value = "Player Wins!"
+                }
+                dealerSum > playerSum -> {
+                    _gameResult.value = "Dealer Wins!"
+                }
+                else -> {
+                    _gameResult.value = "It's a Tie!"
+                }
             }
-            GameLogic.isBust(_dealerCards.value ?: listOf()) -> {
-                // Dealer busted, player wins
-                _gameResult.value = "Player Wins!"
+
+            _activeHandIndex.value?.let {
+                if (it < _playerSplitHands.value?.size ?: 0 - 1) {
+                    _activeHandIndex.value = it + 1
+                } else {
+                    _activeHandIndex.value = -1
+                }
             }
-            playerSum > dealerSum -> {
-                // Player has a higher score, player wins
-                _gameResult.value = "Player Wins!"
-            }
-            dealerSum > playerSum -> {
-                // Dealer has a higher score, dealer wins
-                _gameResult.value = "Dealer Wins!"
-            }
-            else -> {
-                // It's a tie
-                _gameResult.value = "It's a Tie!"
+
+        } else {
+            // The usual decision logic for non-split hands
+            val playerSum = GameLogic.calculateSum(_playerCards.value ?: listOf())
+            val dealerSum = GameLogic.calculateSum(_dealerCards.value ?: listOf())
+
+            when {
+                GameLogic.isBust(_playerCards.value ?: listOf()) -> {
+                    _gameResult.value = "Dealer Wins!"
+                }
+                GameLogic.isBust(_dealerCards.value ?: listOf()) -> {
+                    _gameResult.value = "Player Wins!"
+                }
+                playerSum > dealerSum -> {
+                    _gameResult.value = "Player Wins!"
+                }
+                dealerSum > playerSum -> {
+                    _gameResult.value = "Dealer Wins!"
+                }
+                else -> {
+                    _gameResult.value = "It's a Tie!"
+                }
             }
         }
+
         updateChipsAfterRound(_gameResult.value!!)
+        _betPlaced.value = false
     }
+
+
 
 
 }

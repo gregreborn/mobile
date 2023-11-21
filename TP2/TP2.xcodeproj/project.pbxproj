@@ -15,6 +15,7 @@
 		121BF7B32B0D091800EBED20 /* HangmanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B22B0D091800EBED20 /* HangmanView.swift */; };
 		121BF7B52B0D092F00EBED20 /* HighScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B42B0D092F00EBED20 /* HighScoreView.swift */; };
 		121BF7B72B0D09B600EBED20 /* LetterButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B62B0D09B600EBED20 /* LetterButtonView.swift */; };
+		121BF7B92B0D203E00EBED20 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B82B0D203E00EBED20 /* Models.swift */; };
 		12D252EB2B0CFAD50016EAF6 /* TP2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D252EA2B0CFAD50016EAF6 /* TP2App.swift */; };
 		12D252ED2B0CFAD50016EAF6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D252EC2B0CFAD50016EAF6 /* ContentView.swift */; };
 		12D252EF2B0CFAD60016EAF6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12D252EE2B0CFAD60016EAF6 /* Assets.xcassets */; };
@@ -48,6 +49,7 @@
 		121BF7B22B0D091800EBED20 /* HangmanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangmanView.swift; sourceTree = "<group>"; };
 		121BF7B42B0D092F00EBED20 /* HighScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighScoreView.swift; sourceTree = "<group>"; };
 		121BF7B62B0D09B600EBED20 /* LetterButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterButtonView.swift; sourceTree = "<group>"; };
+		121BF7B82B0D203E00EBED20 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		12D252E72B0CFAD50016EAF6 /* TP2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TP2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D252EA2B0CFAD50016EAF6 /* TP2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TP2App.swift; sourceTree = "<group>"; };
 		12D252EC2B0CFAD50016EAF6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				12D2531D2B0D078F0016EAF6 /* HangmanGame.swift */,
+				121BF7B82B0D203E00EBED20 /* Models.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -318,6 +321,7 @@
 				121BF7B32B0D091800EBED20 /* HangmanView.swift in Sources */,
 				12D252ED2B0CFAD50016EAF6 /* ContentView.swift in Sources */,
 				121BF7A92B0D086700EBED20 /* HangmanViewModel.swift in Sources */,
+				121BF7B92B0D203E00EBED20 /* Models.swift in Sources */,
 				121BF7AD2B0D089800EBED20 /* APIManager.swift in Sources */,
 				12D2531E2B0D078F0016EAF6 /* HangmanGame.swift in Sources */,
 				121BF7AF2B0D08A800EBED20 /* Constants.swift in Sources */,

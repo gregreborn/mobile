@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		121BF7A92B0D086700EBED20 /* HangmanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7A82B0D086700EBED20 /* HangmanViewModel.swift */; };
-		121BF7AB2B0D087D00EBED20 /* HangmanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7AA2B0D087D00EBED20 /* HangmanViewController.swift */; };
 		121BF7AD2B0D089800EBED20 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7AC2B0D089800EBED20 /* APIManager.swift */; };
 		121BF7AF2B0D08A800EBED20 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7AE2B0D08A800EBED20 /* Constants.swift */; };
 		121BF7B12B0D08B600EBED20 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B02B0D08B600EBED20 /* Extensions.swift */; };
@@ -18,9 +17,9 @@
 		121BF7B92B0D203E00EBED20 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BF7B82B0D203E00EBED20 /* Models.swift */; };
 		12D252EB2B0CFAD50016EAF6 /* TP2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D252EA2B0CFAD50016EAF6 /* TP2App.swift */; };
 		12D252ED2B0CFAD50016EAF6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D252EC2B0CFAD50016EAF6 /* ContentView.swift */; };
-		12D252EF2B0CFAD60016EAF6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12D252EE2B0CFAD60016EAF6 /* Assets.xcassets */; };
 		12D252F22B0CFAD60016EAF6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12D252F12B0CFAD60016EAF6 /* Preview Assets.xcassets */; };
 		12D2531E2B0D078F0016EAF6 /* HangmanGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D2531D2B0D078F0016EAF6 /* HangmanGame.swift */; };
+		12DA0FB72B0FD43400D73846 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12DA0FB62B0FD43400D73846 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,7 +41,6 @@
 
 /* Begin PBXFileReference section */
 		121BF7A82B0D086700EBED20 /* HangmanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangmanViewModel.swift; sourceTree = "<group>"; };
-		121BF7AA2B0D087D00EBED20 /* HangmanViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangmanViewController.swift; sourceTree = "<group>"; };
 		121BF7AC2B0D089800EBED20 /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 		121BF7AE2B0D08A800EBED20 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		121BF7B02B0D08B600EBED20 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -53,11 +51,11 @@
 		12D252E72B0CFAD50016EAF6 /* TP2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TP2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D252EA2B0CFAD50016EAF6 /* TP2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TP2App.swift; sourceTree = "<group>"; };
 		12D252EC2B0CFAD50016EAF6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		12D252EE2B0CFAD60016EAF6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		12D252F12B0CFAD60016EAF6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		12D252F72B0CFAD60016EAF6 /* TP2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TP2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D253012B0CFAD60016EAF6 /* TP2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TP2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		12D2531D2B0D078F0016EAF6 /* HangmanGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangmanGame.swift; sourceTree = "<group>"; };
+		12DA0FB62B0FD43400D73846 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,15 +104,14 @@
 		12D252E92B0CFAD50016EAF6 /* TP2 */ = {
 			isa = PBXGroup;
 			children = (
-				12D2531C2B0D07430016EAF6 /* Resources */,
 				12D2531B2B0D073D0016EAF6 /* Utilities */,
 				12D2531A2B0D07340016EAF6 /* Networking */,
-				12D253172B0D07110016EAF6 /* Controller */,
 				12D253162B0D07080016EAF6 /* ViewModel */,
 				12D253152B0D07030016EAF6 /* View */,
 				12D253142B0D06F20016EAF6 /* Model */,
 				12D252EA2B0CFAD50016EAF6 /* TP2App.swift */,
 				12D252F02B0CFAD60016EAF6 /* Preview Content */,
+				12DA0FB62B0FD43400D73846 /* Assets.xcassets */,
 			);
 			path = TP2;
 			sourceTree = "<group>";
@@ -155,14 +152,6 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		12D253172B0D07110016EAF6 /* Controller */ = {
-			isa = PBXGroup;
-			children = (
-				121BF7AA2B0D087D00EBED20 /* HangmanViewController.swift */,
-			);
-			path = Controller;
-			sourceTree = "<group>";
-		};
 		12D2531A2B0D07340016EAF6 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -178,14 +167,6 @@
 				121BF7B02B0D08B600EBED20 /* Extensions.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		12D2531C2B0D07430016EAF6 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				12D252EE2B0CFAD60016EAF6 /* Assets.xcassets */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,8 +273,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12DA0FB72B0FD43400D73846 /* Assets.xcassets in Resources */,
 				12D252F22B0CFAD60016EAF6 /* Preview Assets.xcassets in Resources */,
-				12D252EF2B0CFAD60016EAF6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,7 +310,6 @@
 				121BF7B52B0D092F00EBED20 /* HighScoreView.swift in Sources */,
 				121BF7B12B0D08B600EBED20 /* Extensions.swift in Sources */,
 				121BF7B72B0D09B600EBED20 /* LetterButtonView.swift in Sources */,
-				121BF7AB2B0D087D00EBED20 /* HangmanViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

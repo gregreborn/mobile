@@ -12,7 +12,7 @@ import Foundation
 import Foundation
 
 struct HighScore: Identifiable, Decodable {
-    let id: UUID = UUID()
+    let id: UUID 
     let player: String
     let score: Int
 }

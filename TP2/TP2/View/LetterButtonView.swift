@@ -8,13 +8,19 @@
 import SwiftUI
 
 struct LetterButtonView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    var letter: String
+    var action: () -> Void
 
-struct LetterButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        LetterButtonView()
+    var body: some View {
+        Button(action: action) {
+            Text(letter)
+                .font(.title)
+                .fontWeight(.medium)
+                .padding()
+                .frame(width: 45, height: 45)
+                .background(Circle().fill(Color.blue))
+                .foregroundColor(.white)
+                .overlay(Circle().stroke(Color.blue.opacity(0.5), lineWidth: 1))
+        }
     }
 }

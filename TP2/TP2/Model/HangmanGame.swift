@@ -11,7 +11,7 @@ class HangmanGame {
     // The word that needs to be guessed
     var word: String = ""
     var secret: String = ""
-
+    
     
     // The current state of the guessed word displayed to the user, initially filled with underscores
     var displayedWord: String {
@@ -39,46 +39,59 @@ class HangmanGame {
             self.word = word
             self.secret = secret
             self.displayedWord = String(repeating: "_", count: word.count)
+        self.onWin = {
+                   print("You won")
+               }
         }
     
     // Function to guess a letter
     func guess(letter: Character) {
-        // Check if the letter has already been guessed
-        guard !guessedLetters.contains(letter) else { return }
+        let lowercasedLetter = Character(letter.lowercased())
+        guard !guessedLetters.contains(lowercasedLetter) else { return }
         
-        // Add the letter to the list of guessed letters
-        guessedLetters.append(letter)
+        guessedLetters.append(lowercasedLetter)
         
-        // Check if the word contains the letter
-        if word.contains(letter) {
-            // Reveal all occurrences of the letter in the displayedWord
-            revealLetter(letter)
+        if word.lowercased().contains(lowercasedLetter) {
+            revealLetter(lowercasedLetter)
         } else {
-            // Decrement the number of tries left
             triesLeft -= 1
             if triesLeft <= 0 {
-                // If no tries left, trigger the lose condition
                 onLose?()
             }
         }
     }
+
     
-    // Function to reveal a letter in the displayedWord
     private func revealLetter(_ letter: Character) {
-        // Update the displayedWord with the guessed letter
+        var newDisplayedWord = displayedWord
         for (index, wordLetter) in word.enumerated() {
-            if wordLetter == letter {
-                let startIndex = displayedWord.index(displayedWord.startIndex, offsetBy: index)
-                displayedWord.replaceSubrange(startIndex...startIndex, with: String(letter))
+            if wordLetter.lowercased() == letter.lowercased() {
+                let startIndex = newDisplayedWord.index(newDisplayedWord.startIndex, offsetBy: index)
+                newDisplayedWord.replaceSubrange(startIndex...startIndex, with: String(letter))
             }
         }
+        displayedWord = newDisplayedWord
+        // Check if the word has been fully guessed
+        if triesLeft <= 0 {
+                onLose?()
+            } else if checkWinCondition() {
+                onWin?()
+            }
+        print("Updated displayedWord: \(displayedWord)")
     }
+
     
     // Function to check if the player has won
     func checkWinCondition() -> Bool {
-        return word == displayedWord
+        let hasWon = word.lowercased() == displayedWord.lowercased()
+        if hasWon {
+            print("Win condition met: Player has guessed the word correctly.")
+        }
+        return hasWon
     }
-    
+
+
+
     // Function to start a new game with a new word
     func resetGame(with newWord: String) {
         word = newWord

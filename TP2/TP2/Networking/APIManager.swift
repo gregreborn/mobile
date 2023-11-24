@@ -17,19 +17,27 @@ struct APIManager {
         
         URLSession.shared.dataTask(with: newWordURL) { data, response, error in
             if let error = error {
+                print("API request error: \(error.localizedDescription)")
                 completion(nil, error)
                 return
             }
             
             guard let data = data else {
+                print("API response data is nil")
                 completion(nil, NSError(domain: "", code: -1, userInfo: nil))
                 return
             }
             
+            // Print raw response data
+              ///print(String(data: data, encoding: .utf8) ?? "No data")
+            
             do {
                 let wordSecret = try JSONDecoder().decode(WordSecret.self, from: data)
+                print("API response word: \(wordSecret.word)")
+                print("API response secret: \(wordSecret.secret)")
                 completion(wordSecret, nil)
             } catch {
+                print("Error decoding API response: \(error.localizedDescription)")
                 completion(nil, error)
             }
         }.resume()
@@ -75,5 +83,11 @@ struct APIManager {
 struct WordSecret: Decodable {
     let word: String
     let secret: String
+
+    enum CodingKeys: String, CodingKey {
+        case word = "Word"
+        case secret = "Secret"
+    }
 }
+
 

@@ -30,24 +30,26 @@ struct HighScoreView: View {
             }
             .padding()
 
-            if viewModel.highScores.isEmpty && !isSearching {
-                Text("No high scores to display.")
-                    .foregroundColor(.secondary)
-            } else {
-                List(viewModel.highScores) { highScore in
+            if let highScores = viewModel.highScoreResponse?.list, !highScores.isEmpty {
+                List(highScores) { highScore in
                     HStack {
                         Text(highScore.player)
                         Spacer()
                         Text("\(highScore.score)")
                     }
                 }
+            } else if !isSearching {
+                Text("No high scores to display.")
+                    .foregroundColor(.secondary)
             }
         }
         .navigationBarTitle("High Scores", displayMode: .inline)
-        .onReceive(viewModel.$highScores) { _ in
+        .navigationBarBackButtonHidden(true) // Hide the back button
+        .onReceive(viewModel.$highScoreResponse) { _ in
             isSearching = false
         }
     }
 }
+
 
 

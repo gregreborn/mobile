@@ -9,10 +9,25 @@ import Foundation
 
 // Models.swift
 
-import Foundation
+struct HighScoreResponse: Decodable {
+    struct HighScore: Identifiable, Decodable {
+        let id = UUID()
+        let player: String
+        let score: Int
 
-struct HighScore: Identifiable, Decodable {
-    let id: UUID 
-    let player: String
-    let score: Int
+        enum CodingKeys: String, CodingKey {
+            case player = "Player"
+            case score = "Score"
+        }
+    }
+
+    let list: [HighScore]?
+    let error: String?
+
+    enum CodingKeys: String, CodingKey {
+        case list = "List"
+        case error = "Error"
+    }
 }
+
+

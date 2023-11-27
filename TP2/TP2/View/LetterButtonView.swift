@@ -14,13 +14,16 @@ struct LetterButtonView: View {
     var body: some View {
         Button(action: action) {
             Text(letter)
-                .font(.title)
-                .fontWeight(.medium)
-                .padding()
-                .frame(width: 45, height: 45)
-                .background(Circle().fill(Color.blue))
+                .font(.system(size: 18))
+                .fontWeight(.bold)
                 .foregroundColor(.white)
-                .overlay(Circle().stroke(Color.blue.opacity(0.5), lineWidth: 1))
+                .frame(width: 35, height: 35)
+                .background(Circle().fill(Color.blue))
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.6), lineWidth: 1)
+                )
         }
+        .padding(5)
+        .buttonStyle(PlainButtonStyle())
     }
 }

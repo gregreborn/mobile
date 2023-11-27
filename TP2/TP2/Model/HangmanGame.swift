@@ -8,33 +8,26 @@
 import Foundation
 
 class HangmanGame {
-    // The word that needs to be guessed
     var word: String = ""
     var secret: String = ""
     
     
-    // The current state of the guessed word displayed to the user, initially filled with underscores
     var displayedWord: String {
         didSet {
-            // Whenever displayedWord is updated, check for win condition
             if displayedWord == word {
                 onWin?()
             }
         }
     }
     
-    // The number of tries the player has to guess the word
     let maxTries: Int = 6
     var triesLeft: Int = 6
     
-    // The letters that have been guessed so far
     var guessedLetters: [Character] = []
     
-    // Callbacks for win and lose conditions
     var onWin: (() -> Void)?
     var onLose: (() -> Void)?
     
-    // Initializes a new game with a word
     init(word: String, secret: String) {
             self.word = word
             self.secret = secret
@@ -44,15 +37,16 @@ class HangmanGame {
                }
         }
     
-    // Function to guess a letter
     func guess(letter: Character) {
-        let lowercasedLetter = Character(letter.lowercased())
-        guard !guessedLetters.contains(lowercasedLetter) else { return }
+        let normalizedLetter = String(letter).folding(options: .diacriticInsensitive, locale: .current).lowercased()
+        let normalizedWord = word.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+
+        guard !guessedLetters.contains(letter) else { return }
         
-        guessedLetters.append(lowercasedLetter)
+        guessedLetters.append(letter)
         
-        if word.lowercased().contains(lowercasedLetter) {
-            revealLetter(lowercasedLetter)
+        if normalizedWord.contains(normalizedLetter) {
+            revealLetter(letter)
         } else {
             triesLeft -= 1
             if triesLeft <= 0 {
@@ -63,36 +57,31 @@ class HangmanGame {
 
     
     private func revealLetter(_ letter: Character) {
+        let normalizedLetter = String(letter).folding(options: .diacriticInsensitive, locale: .current).lowercased()
         var newDisplayedWord = displayedWord
+        
         for (index, wordLetter) in word.enumerated() {
-            if wordLetter.lowercased() == letter.lowercased() {
+            let normalizedWordLetter = String(wordLetter).folding(options: .diacriticInsensitive, locale: .current).lowercased()
+            if normalizedWordLetter == normalizedLetter {
                 let startIndex = newDisplayedWord.index(newDisplayedWord.startIndex, offsetBy: index)
-                newDisplayedWord.replaceSubrange(startIndex...startIndex, with: String(letter))
+                newDisplayedWord.replaceSubrange(startIndex...startIndex, with: String(wordLetter))
             }
         }
+        
         displayedWord = newDisplayedWord
-        // Check if the word has been fully guessed
-        if triesLeft <= 0 {
-                onLose?()
-            } else if checkWinCondition() {
-                onWin?()
-            }
-        print("Updated displayedWord: \(displayedWord)")
-    }
-
-    
-    // Function to check if the player has won
-    func checkWinCondition() -> Bool {
-        let hasWon = word.lowercased() == displayedWord.lowercased()
-        if hasWon {
-            print("Win condition met: Player has guessed the word correctly.")
+        if checkWinCondition() {
+            onWin?()
         }
-        return hasWon
+    }
+
+    func checkWinCondition() -> Bool {
+        let normalizedDisplayedWord = displayedWord.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+        let normalizedWord = word.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+        return normalizedDisplayedWord == normalizedWord
     }
 
 
 
-    // Function to start a new game with a new word
     func resetGame(with newWord: String) {
         word = newWord
         displayedWord = String(repeating: "_", count: newWord.count)

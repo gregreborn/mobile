@@ -8,28 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var viewModel = HangmanViewModel()  // ViewModel instance
-    @State private var showGameView = false  // State to control navigation
+    @StateObject var viewModel = HangmanViewModel()
+    @State private var showGameView = false
 
     var body: some View {
         NavigationView {
             VStack {
-                TextField("Enter your name", text: $viewModel.playerName)  // Two-way binding to viewModel's playerName
+                TextField("Enter your name", text: $viewModel.playerName)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 
                 Button("Start Game") {
-                    viewModel.startNewGame()  // Start the game
-                    showGameView = true  // Trigger navigation
+                    viewModel.startNewGame()
+                    showGameView = true
                 }
-                .disabled(viewModel.playerName.isEmpty)  // Disable button if no name
+                .disabled(viewModel.playerName.isEmpty)
                 .padding()
                 
+                
+
                 NavigationLink(destination: HangmanView(viewModel: viewModel), isActive: $showGameView) {
-                    EmptyView()  // Invisible view to trigger navigation
+                    EmptyView()
                 }
+                
+            
             }
-            .navigationBarTitle("Welcome to Hangman")
+            .navigationBarTitle("Hangman")
         }
     }
 }

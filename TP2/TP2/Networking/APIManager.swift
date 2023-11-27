@@ -11,7 +11,6 @@ struct APIManager {
 
     let baseURL = "https://kubernetes.drynish.synology.me"
     
-    // Fetch a new word and secret from the API
     func fetchNewWord(completion: @escaping (WordSecret?, Error?) -> Void) {
         let newWordURL = URL(string: "\(baseURL)/new")!
         
@@ -28,8 +27,6 @@ struct APIManager {
                 return
             }
             
-            // Print raw response data
-              ///print(String(data: data, encoding: .utf8) ?? "No data")
             
             do {
                 let wordSecret = try JSONDecoder().decode(WordSecret.self, from: data)
@@ -43,41 +40,91 @@ struct APIManager {
         }.resume()
     }
     
-    // Send the player's name and score to the API
     func submitScore(word: String, secret: String, player: String, score: Int, completion: @escaping (Error?) -> Void) {
-        let submitScoreURL = URL(string: "\(baseURL)/solve/\(word)/\(secret)/\(player)/\(score)")!
-        
+        guard let encodedWord = word.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+              let encodedSecret = secret.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
+            completion(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode word or secret"]))
+            return
+        }
+
+        let urlString = "\(baseURL)/solve/\(encodedWord)/\(encodedSecret)/\(player)/\(score)"
+        guard let submitScoreURL = URL(string: urlString) else {
+            print("Invalid URL: \(urlString)")
+            return
+        }
+
+        print("Submitting score to URL: \(submitScoreURL.absoluteString)")
+
         var request = URLRequest(url: submitScoreURL)
-        request.httpMethod = "POST"
-        
-        URLSession.shared.dataTask(with: request) { _, _, error in
-            completion(error)
+        request.httpMethod = "GET"
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error submitting score: \(error.localizedDescription)")
+                completion(error)
+                return
+            }
+
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                print("Response from submit score API: \(responseString)")
+            } else {
+                print("Data encoding failed or data is nil")
+            }
+
+            completion(nil)
         }.resume()
     }
+
+
     
-    // Fetch the high scores for a word from the API
-    func fetchHighScores(forWord word: String, completion: @escaping ([HighScore]?, Error?) -> Void) {
-        let highScoresURL = URL(string: "\(baseURL)/score/\(word)")!
+    func fetchHighScores(forWord word: String, completion: @escaping (HighScoreResponse?, Error?) -> Void) {
+        let wordLowercased = word.lowercased()
         
+        guard let encodedWord = wordLowercased.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode word"]))
+            return
+        }
+
+        let highScoresURL = URL(string: "\(baseURL)/score/\(encodedWord)")!
+
         URLSession.shared.dataTask(with: highScoresURL) { data, response, error in
             if let error = error {
+                print("Error fetching high scores: \(error.localizedDescription)")
                 completion(nil, error)
                 return
             }
             
             guard let data = data else {
+                print("High scores data is nil")
                 completion(nil, NSError(domain: "", code: -1, userInfo: nil))
                 return
             }
             
+            if let httpResponse = response as? HTTPURLResponse {
+                print("HTTP Response Status Code: \(httpResponse.statusCode)")
+                if let allHeaderFields = httpResponse.allHeaderFields as? [String: Any] {
+                    print("HTTP Response Headers:")
+                    for (key, value) in allHeaderFields {
+                        print("\(key): \(value)")
+                    }
+                }
+            }
+
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Raw JSON response: \(jsonString)")
+            }
+            
             do {
-                let highScores = try JSONDecoder().decode([HighScore].self, from: data)
-                completion(highScores, nil)
+                let highScoresResponse = try JSONDecoder().decode(HighScoreResponse.self, from: data)
+                completion(highScoresResponse, nil)
             } catch {
+                print("Error decoding high scores: \(error)")
                 completion(nil, error)
             }
         }.resume()
     }
+
+
+
 }
 
 struct WordSecret: Decodable {

@@ -16,30 +16,29 @@ class HangmanViewModel: ObservableObject {
     // Use @Published to automatically update the view when these properties change
     @Published var displayedWord: String
     @Published var triesLeft: Int
+    @Published var maxTries: Int = 6
     @Published var guessedLetters: [Character]
     @Published var gameStatus: GameStatus = .ongoing
     @Published var errorMessage: String?
-    @Published var highScores: [HighScore] = []
+    @Published var highScoreResponse: HighScoreResponse?
     @Published var gameHasEnded = false
     @Published var playerName: String = ""  // Player's name
     @Published var successMessage: String? = nil
     @Published var showHighScores = false
+    @Published var topPlayer: String? = nil
 
 
     
 
 
     
-    // API Manager for network requests
     private var apiManager = APIManager()
     
-    // Enum to represent the status of the game
     enum GameStatus {
         case ongoing, won, lost
     }
     
     init() {
-            // Create a new game instance with placeholder values
             let placeholderWord = "placeholder"
             let placeholderSecret = "secret"
             self.game = HangmanGame(word: placeholderWord, secret: placeholderSecret)
@@ -53,30 +52,29 @@ class HangmanViewModel: ObservableObject {
                 }
             }
     
-    // Function to start a new game
+    
+    
     func startNewGame() {
         gameHasEnded = false
-            showHighScores = false
-            errorMessage = nil
-        print("startNewGame() called") // Debug statement
+        showHighScores = false
+        errorMessage = nil
+        topPlayer = nil
+        print("startNewGame() called")
 
         apiManager.fetchNewWord { [weak self] wordSecret, error in
             DispatchQueue.main.async {
                 if let wordSecret = wordSecret {
                     self?.game = HangmanGame(word: wordSecret.word, secret: wordSecret.secret)
                     self?.updatePublishedProperties()
-                    
-                    // Print the fetched word to the Xcode console
-                    if let gameWord = self?.game?.word {
-                        print("Fetched word from API: \(gameWord)")
-                    }
-                    
+                    self?.fetchHighScores(forWord: wordSecret.word)
+                    print("Fetched word from API: \(wordSecret.word)")
                 } else if let error = error {
                     self?.errorMessage = error.localizedDescription
                 }
             }
         }
     }
+
 
     private func handleGameWon() {
             DispatchQueue.main.async { [weak self] in
@@ -92,19 +90,19 @@ class HangmanViewModel: ObservableObject {
                 guard let self = self else { return }
                 self.gameStatus = .lost
                 self.gameHasEnded = true
-                // Handle any additional logic for when the game is lost, if necessary
             }
         }
 
 
     
-    // Function to fetch high scores for a word
     func fetchHighScores(forWord word: String) {
-        apiManager.fetchHighScores(forWord: word) { [weak self] result, error in
+        apiManager.fetchHighScores(forWord: word) { [weak self] response, error in
             DispatchQueue.main.async {
-                if let highScores = result {
-                    self?.highScores = highScores
+                if let highScores = response?.list, !highScores.isEmpty {
+                    let topScore = highScores.min(by: { $0.score < $1.score })
+                    self?.topPlayer = topScore?.player
                 } else {
+                    self?.topPlayer = "none"
                     self?.errorMessage = error?.localizedDescription ?? "Unknown error"
                 }
             }
@@ -112,19 +110,18 @@ class HangmanViewModel: ObservableObject {
     }
 
 
+
+
     
     func clearErrorMessage() {
             errorMessage = nil
         }
     
-    // Function to make a guess
     func makeGuess(letter: Character) {
-        // Safely unwrap 'game' before using it
         if let game = game {
             game.guess(letter: letter)
             updatePublishedProperties()
             
-            // Check for game status updates
             if game.checkWinCondition() {
                 gameStatus = .won
                 self.submitScore(playerName: self.playerName)
@@ -136,9 +133,7 @@ class HangmanViewModel: ObservableObject {
         }
     }
 
-    // Function to update the view model's published properties to reflect the game's state
     private func updatePublishedProperties() {
-        // Safely unwrap 'game' before using its properties
         if let game = game {
             displayedWord = game.displayedWord
             triesLeft = game.triesLeft
@@ -156,12 +151,8 @@ class HangmanViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = "Failed to submit score: \(error.localizedDescription)"
-                    // Here you might want to show an alert to the user to inform them of the error.
                 } else {
-                    // The score was successfully submitted.
                     self?.successMessage = "Score submitted successfully!"
-                    // You could navigate to the high scores view, or fetch the latest high scores to update the view.
-                    self?.fetchHighScores(forWord: game.word)
                 }
             }
         }

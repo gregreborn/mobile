@@ -11,7 +11,7 @@ struct HighScoreView: View {
                 TextField("Rechercher un mot", text: $searchWord)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                if viewModel.isSearching { // Use viewModel.isSearching here
+                if viewModel.isSearching { 
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 } else {

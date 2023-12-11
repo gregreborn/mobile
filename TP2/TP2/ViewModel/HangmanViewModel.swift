@@ -10,10 +10,8 @@ import SwiftUI
 import Combine
 
 class HangmanViewModel: ObservableObject {
-    // Reference to the Hangman game logic
     public var game: HangmanGame?
     
-    // Use @Published to automatically update the view when these properties change
     @Published var displayedWord: String
     @Published var triesLeft: Int
     @Published var maxTries: Int = 6
@@ -27,7 +25,7 @@ class HangmanViewModel: ObservableObject {
     @Published var showHighScores = false
     @Published var topPlayer: String? = nil
     @Published var highScores: [HighScoreResponse.HighScore] = []
-    @Published var isSearching = false // Add this line
+    @Published var isSearching = false
 
 
     
@@ -98,11 +96,11 @@ class HangmanViewModel: ObservableObject {
 
     
     func fetchHighScores(forWord word: String) {
-           isSearching = true // Set this to true when the search starts
+           isSearching = true //  true when the search starts
            errorMessage = nil // Reset error message
            apiManager.fetchHighScores(forWord: word) { [weak self] response, error in
                DispatchQueue.main.async {
-                   self?.isSearching = false // Set this to false when the search completes
+                   self?.isSearching = false //  false when the search completes
                    if let response = response {
                        self?.highScores = response.list ?? []
                    } else {

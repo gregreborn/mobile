@@ -26,6 +26,8 @@ class HangmanViewModel: ObservableObject {
     @Published var successMessage: String? = nil
     @Published var showHighScores = false
     @Published var topPlayer: String? = nil
+    @Published var highScores: [HighScoreResponse.HighScore] = []
+    @Published var isSearching = false // Add this line
 
 
     
@@ -96,19 +98,20 @@ class HangmanViewModel: ObservableObject {
 
     
     func fetchHighScores(forWord word: String) {
-        apiManager.fetchHighScores(forWord: word) { [weak self] response, error in
-            DispatchQueue.main.async {
-                if let highScores = response?.list, !highScores.isEmpty {
-                    let topScore = highScores.min(by: { $0.score < $1.score })
-                    self?.topPlayer = topScore?.player
-                } else {
-                    self?.topPlayer = "none"
-                    self?.errorMessage = error?.localizedDescription ?? "Unknown error"
-                }
-            }
-        }
-    }
-
+           isSearching = true // Set this to true when the search starts
+           errorMessage = nil // Reset error message
+           apiManager.fetchHighScores(forWord: word) { [weak self] response, error in
+               DispatchQueue.main.async {
+                   self?.isSearching = false // Set this to false when the search completes
+                   if let response = response {
+                       self?.highScores = response.list ?? []
+                   } else {
+                       self?.highScores = [] // Clear highScores if there's an error
+                       self?.errorMessage = error?.localizedDescription ?? "No high scores found."
+                   }
+               }
+           }
+       }
 
 
 

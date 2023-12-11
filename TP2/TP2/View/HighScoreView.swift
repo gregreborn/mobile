@@ -1,55 +1,44 @@
-//
-//  HighScoreView.swift
-//  TP2
-//
-//  Created by user238613 on 11/21/23.
-//
-
 import SwiftUI
 
 struct HighScoreView: View {
     @ObservedObject var viewModel: HangmanViewModel
     @State private var searchWord = ""
-    @State private var isSearching = false
+    @State private var errorMessage: String?
 
     var body: some View {
         VStack {
             HStack {
                 TextField("Rechercher un mot", text: $searchWord)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-                if isSearching {
+
+                if viewModel.isSearching { // Use viewModel.isSearching here
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 } else {
                     Button("Search") {
-                        isSearching = true
                         viewModel.fetchHighScores(forWord: searchWord)
                     }
                 }
             }
             .padding()
 
-            if let highScores = viewModel.highScoreResponse?.list, !highScores.isEmpty {
-                List(highScores) { highScore in
+            if viewModel.highScores.isEmpty && !viewModel.isSearching && viewModel.errorMessage == nil {
+                Text("No high scores to display.")
+                    .foregroundColor(.secondary)
+            } else if !viewModel.highScores.isEmpty {
+                List(viewModel.highScores) { highScore in
                     HStack {
                         Text(highScore.player)
                         Spacer()
                         Text("\(highScore.score)")
                     }
                 }
-            } else if !isSearching {
-                Text("No high scores to display.")
-                    .foregroundColor(.secondary)
+            } else if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
             }
         }
         .navigationBarTitle("High Scores", displayMode: .inline)
-        .navigationBarBackButtonHidden(true) // Hide the back button
-        .onReceive(viewModel.$highScoreResponse) { _ in
-            isSearching = false
-        }
+        .navigationBarBackButtonHidden(true)
     }
 }
-
-
-

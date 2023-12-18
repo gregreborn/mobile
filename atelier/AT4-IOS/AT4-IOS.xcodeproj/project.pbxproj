@@ -36,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1285D9C02B30D3ED00CD9873 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		12E3856F2B30CDBC00FB5CDE /* AT4-IOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AT4-IOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12E385722B30CDBC00FB5CDE /* AT4_IOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AT4_IOSApp.swift; sourceTree = "<group>"; };
 		12E385742B30CDBC00FB5CDE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -98,6 +99,7 @@
 		12E385712B30CDBC00FB5CDE /* AT4-IOS */ = {
 			isa = PBXGroup;
 			children = (
+				1285D9C02B30D3ED00CD9873 /* Info.plist */,
 				12E3859E2B30CDD400FB5CDE /* View */,
 				12E3859D2B30CDCE00FB5CDE /* ViewModel */,
 				12E3859C2B30CDC900FB5CDE /* Models */,
@@ -451,6 +453,11 @@
 				DEVELOPMENT_ASSET_PATHS = "\"AT4-IOS/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AT4-IOS/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -479,6 +486,11 @@
 				DEVELOPMENT_ASSET_PATHS = "\"AT4-IOS/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AT4-IOS/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
